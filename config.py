@@ -53,8 +53,6 @@ now = time.strftime("%m-%d_%H-%M", time.localtime())
 __C.EXP_NAME = __C.DATASET + '_' + __C.METHOD + '_' + now
 
 
-__C.TENDIR='./runs/'+__C.EXP_NAME
-
 if __C.DATASET == 'UCF50':
     __C.EXP_NAME += '_' + str(__C.VAL_INDEX)
 

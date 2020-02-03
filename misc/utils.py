@@ -4,7 +4,7 @@ import math
 import time
 import random
 import shutil
-
+from config import cfg
 import torch
 from torch import nn
 
@@ -61,10 +61,10 @@ def logger(exp_path, exp_name, work_dir, exception, resume=False):
 
     from tensorboardX import SummaryWriter
     
-    if not os.path.exists(exp_path):
-        os.mkdir(exp_path)
+    if not os.path.exists(exp_name):
+        os.mkdir(exp_name)
 
-    writer = SummaryWriter(exp_path+ '/' + exp_name)
+    writer = SummaryWriter(exp_path+ '/',comment=exp_name)
     log_file = exp_path + '/' + exp_name + '/' + exp_name + '.txt'
     
     cfg_file = open('./config.py',"r")  
@@ -72,6 +72,13 @@ def logger(exp_path, exp_name, work_dir, exception, resume=False):
     
     with open(log_file, 'a') as f:
         f.write(''.join(cfg_lines) + '\n\n\n\n')
+
+    data_mode = cfg.DATASET
+    data_setting = './datasets/'+data_mode+'/setting.py'
+    data_cfg_file = open(data_setting,'r')
+    data_cfg_file_lines = data_cfg_file.readlines()
+    with open(log_file, 'a') as f:
+        f.write(''.join(data_cfg_file_lines) + '\n\n\n\n')
 
     #if not resume:
         #copy_cur_env(work_dir, exp_path+ '/' + exp_name + '/code', exception)
