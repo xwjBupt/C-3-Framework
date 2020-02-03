@@ -15,7 +15,7 @@ gpus = cfg.GPU_ID
 if len(gpus)==1:
     torch.cuda.set_device(gpus[0])
 
-torch.backends.cudnn.benchmark = True
+#torch.backends.cudnn.benchmark = True
 
 
 #------------prepare data loader------------
@@ -50,7 +50,7 @@ elif data_mode is 'UCSD':
 net = cfg.NET
 if net in ['MCNN', 'AlexNet', 'VGG', 'VGG_DECODER', 'Res50', 'Res101', 'CSRNet','Res101_SFCN']:
     from trainer import Trainer
-elif net in ['SANet']: 
+elif net in ['SANet','OAI_NET_V4']:
     from trainer_for_M2TCC import Trainer # double losses but signle output
 elif net in ['CMTL']: 
     from trainer_for_CMTL import Trainer # double losses and double outputs

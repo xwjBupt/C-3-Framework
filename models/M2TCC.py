@@ -5,13 +5,15 @@ import pdb
 from config import cfg
 
 
+
 class CrowdCounter(nn.Module):
     def __init__(self,gpus,model_name,loss_1_fn,loss_2_fn):
         super(CrowdCounter, self).__init__()        
         
         if model_name == 'SANet':
             from M2TCC_Model.SANet import SANet as net
-
+        if model_name == 'OAI_NET_V4':
+            from M2TCC_Model.OAINet import OAI_NET_V4 as net
 
         self.CCN = net()
         if len(gpus)>1:
