@@ -22,15 +22,15 @@ if __C.DATASET == 'GCC':  # only for GCC
     __C.VAL_MODE = cfg_data.VAL_MODE
 
 __C.NET = 'OAI_NET_V4'  # net selection: MCNN, AlexNet, VGG, VGG_DECODER, Res50, CSRNet, SANet
-__C.METHOD = 't1_OAI_NET_V4_no_att_with_default_setting'
+__C.METHOD = 't1_OAI_NET_V4_no_att_with_image_patch'
 __C.PRE_GCC = False  # use the pretrained model on GCC dataset
 __C.PRE_GCC_MODEL = 'path to model'  # path to model
-__C.PRE = 'model_best.pth.tar'
+__C.PRE = '/home/xwj/C-3-Framework/model_best.pth.tar'
 
 __C.RESUME = False  # contine training
 __C.RESUME_PATH = None#
 
-__C.GPU_ID = [3]  # sigle gpu: [0], [1] ...; multi gpus: [0,1]
+__C.GPU_ID = [0,1,2,3]  # sigle gpu: [0], [1] ...; multi gpus: [0,1]
 
 # learning rate settings
 __C.LR = 5e-5  # learning rate
@@ -50,7 +50,7 @@ __C.PRINT_FREQ = 30
 
 now = time.strftime("%m-%d_%H-%M", time.localtime())
 
-__C.EXP_NAME = __C.DATASET + '_' + __C.METHOD + '_' + now
+__C.EXP_NAME = __C.DATASET + '/' + __C.METHOD + '_' + now
 
 
 if __C.DATASET == 'UCF50':
@@ -59,7 +59,7 @@ if __C.DATASET == 'UCF50':
 if __C.DATASET == 'GCC':
     __C.EXP_NAME += '_' + __C.VAL_MODE
 
-__C.EXP_PATH = './runs'  # the path of logs, checkpoints, and current codes
+__C.EXP_PATH = '/home/xwj/C-3-Framework/EXP/'  # the path of logs, checkpoints, and current codes
 
 # ------------------------------VAL------------------------
 __C.VAL_DENSE_START = 50

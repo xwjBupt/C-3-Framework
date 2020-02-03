@@ -12,6 +12,9 @@ import pdb
 from config import cfg
 from tqdm import tqdm
 
+import cv2
+
+
 class SHHA(data.Dataset):
     def __init__(self, data_path, mode = 'train',preload = False, main_transform=None, img_transform=None, gt_transform=None):
         self.img_path = data_path + '/images'
@@ -49,12 +52,14 @@ class SHHA(data.Dataset):
         return self.num_samples
 
     def read_image_and_gt(self, fname):
-        img = Image.open(os.path.join(self.img_path, fname))
-        if img.mode == 'L':
-            img = img.convert('RGB')
+        
+        
+        #img = Image.open(os.path.join(self.img_path, fname))
+        #if img.mode == 'L':
+            #img = img.convert('RGB')
 
-        den = sio.loadmat(os.path.join(self.gt_path, os.path.splitext(fname)[0] + '.mat'))
-        den = den['map']
+        ##den = sio.loadmat(os.path.join(self.gt_path, os.path.splitext(fname)[0] + '.mat'))
+        #den = den['map']
         # den = pd.read_csv(os.path.join(self.gt_path,os.path.splitext(fname)[0] + '.csv'), sep=',',header=None).values
 
         den = den.astype(np.float32, copy=False)
@@ -66,11 +71,14 @@ class SHHA(data.Dataset):
         return self.num_samples
 
     def XWJ_read_image_and_gt(self, fname,preload = False):
-
-        img = Image.open(os.path.join(self.img_path, fname))
-        if img.mode == 'L':
-              img = img.convert('RGB')
-        imgname = fname.split('/')[-1]
+        
+        img_temp = cv2.imread(os.path.join(self.img_path, fname))
+        img_temp = img_temp[:,:,::-1].copy()
+        img = Image.fromarray(img_temp)
+        #img = Image.open(os.path.join(self.img_path, fname))
+        #if img.mode == 'L':
+              #img = img.convert('RGB')
+        #imgname = fname.split('/')[-1]
 
         gtfile = self.gt_path + '/' + imgname.replace('.jpg', '.npy')
         den = np.load(gtfile)
@@ -83,10 +91,18 @@ class SHHA(data.Dataset):
         dens = []
         print('loading %s data into ram....'%mode)
         for file in tqdm(data_files):
-            img = Image.open(file)
-            if img.mode == 'L':
-                  img = img.convert('RGB')
+            
+            img_temp = cv2.imread(file)
+            img_temp = img_temp[:,:,::-1].copy()
+            
+            img = Image.fromarray(img_temp)
+        
+            #img = Image.open(file)
+            #if img.mode == 'L':
+                  #img = img.convert('RGB')
             imgname = file.split('/')[-1]
+            
+            
             gtfile = gtdir + '/' + imgname.replace('.jpg', '.npy')
             den = np.load(gtfile)
             den = den.astype(np.float32, copy=False)

@@ -16,33 +16,35 @@ class CrowdCounter(nn.Module):
 
 
         self.CCN = net()
-
+        
+        
         if pretrained:
 
             if 'SHA' in pretrained:
-                check = torch.load(pretrained)
+                cprint('update parameter from SHA pretrain model mae %.3f' % temp_mae, color='yellow')
+                check = torch.load(pretrained,map_location=torch.device('cpu'))
                 temp_mae = check['best_mae']
                 pretrained_dict = check['net_state_dict']
-                model_dict = net.state_dict()  # 自己的模型参数变量
+                model_dict = self.CCN.state_dict()  # 自己的模型参数变量
                 pretrained_dict = {k: v for k, v in pretrained_dict.items() if k[9:] in model_dict}  # 去除一些不需要的参数
                 model_dict.update(pretrained_dict)  # 参数更新
                 self.CCN.load_state_dict(model_dict)  # 加载
-                cprint('update parameter from SHA pretrain model mae %.3f' % temp_mae, color='yellow')
+                
             else:
-                pretrained_dict = torch.load(pretrained)['state_dict']
-                model_dict = net.state_dict()  # 自己的模型参数变量
+                
+                cprint('update parameter from imagenet pretrain model', color='yellow')
+                pretrained_dict = torch.load(pretrained,map_location=torch.device('cpu'))['state_dict']
+                model_dict = self.CCN.state_dict()  # 自己的模型参数变量
                 pretrained_dict = {k[7:]: v for k, v in pretrained_dict.items() if
                                    k[7:] in model_dict}  # only update backbone
                 model_dict.update(pretrained_dict)  # 参数更新
                 self.CCN.load_state_dict(model_dict)  # 加载
-                cprint('update parameter from imagenet pretrain model', color='yellow')
-        
+           
         if len(gpus) > 1:
             self.CCN = torch.nn.DataParallel(self.CCN, device_ids=gpus).cuda()
         else:
             self.CCN = self.CCN.cuda()
-           
-            
+
         self.loss_1_fn = loss_1_fn.cuda()
         self.loss_2_fn = loss_2_fn.cuda()
 

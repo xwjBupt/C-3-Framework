@@ -21,8 +21,11 @@ def get_min_size(batch):
         _,ht,wd = i_sample.shape
         if ht<min_ht:
             min_ht = ht
+        
         if wd<min_wd:
             min_wd = wd
+            
+        
             
     min_ht = min_ht//dis*dis
     min_wd = min_wd//dis*dis

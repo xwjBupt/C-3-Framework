@@ -6,7 +6,7 @@ __C_SHHA = edict()
 cfg_data = __C_SHHA
 
 __C_SHHA.STD_SIZE = (768,1024)
-__C_SHHA.TRAIN_SIZE = (576,768) # 2D tuple or 1D scalar
+__C_SHHA.TRAIN_SIZE = (432,576) # 2D tuple or 1D scalar
 
 __C_SHHA.DATA_PATH = '/home/xwj/ShanghaiTech_Crowd_Counting_Dataset/part_A_final'               
 
@@ -17,7 +17,7 @@ __C_SHHA.LABEL_FACTOR = 1
 __C_SHHA.LOG_PARA = 100.
 
 __C_SHHA.RESUME_MODEL = ''#model path
-__C_SHHA.TRAIN_BATCH_SIZE = 4 #imgs
+__C_SHHA.TRAIN_BATCH_SIZE = 16 #imgs
 
 __C_SHHA.VAL_BATCH_SIZE = 1 # must be 1
 

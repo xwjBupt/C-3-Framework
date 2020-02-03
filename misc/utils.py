@@ -61,12 +61,12 @@ def logger(exp_path, exp_name, work_dir, exception, resume=False):
 
     from tensorboardX import SummaryWriter
     
-    if not os.path.exists(exp_name):
-        os.mkdir(exp_name)
+   
+    if not os.path.exists(exp_path+exp_name):
+        os.makedirs(exp_path+exp_name)
 
-    writer = SummaryWriter(exp_path+ '/',comment=exp_name)
-    log_file = exp_path + '/' + exp_name + '/' + exp_name + '.txt'
-    
+    writer = SummaryWriter(comment=exp_name)
+    log_file =  exp_path+exp_name+'/log.txt'
     cfg_file = open('./config.py',"r")  
     cfg_lines = cfg_file.readlines()
     
@@ -95,7 +95,7 @@ def logger_for_CMTL(exp_path, exp_name, work_dir, exception, resume=False):
         os.mkdir(exp_path)
 
     if not os.path.exists(exp_path+ '/' + exp_name):
-        os.mkdir(exp_path+ '/' + exp_name)
+        os.makedirs(exp_path+ '/' + exp_name)
     log_file = exp_path + '/' + exp_name + '/' + exp_name + '.txt'
     
     cfg_file = open('./config.py',"r")  
@@ -149,17 +149,17 @@ def vis_results(exp_name, epoch, writer, restore, img, pred_map, gt_map):
 
 
 
-def print_summary(exp_name,scores,train_record):
+def print_summary(exp_name,scores,train_record,epoch):
     mae, mse, loss = scores
-    print( '='*50 )
+    
     print( exp_name )
     print( '    '+ '-'*20 )
-    print( '    [mae %.2f mse %.2f], [val loss %.4f]' % (mae, mse, loss) )        
+    print( '  [epoch %d] ,[mae %.2f mse %.2f], [val loss %.4f]' % (epoch,mae, mse, loss) )        
     print( '    '+ '-'*20 )
-    print( '[best] [model: %s] , [mae %.2f], [mse %.2f]' % (train_record['best_model_name'],\
+    print( '[current best] [model: %s] , [mae %.2f], [mse %.2f]' % (train_record['best_model_name'],\
                                                         train_record['best_mae'],\
                                                         train_record['best_mse']) )
-    print( '='*50)
+    
 
 def print_WE_summary(log_txt,epoch,scores,train_record,c_maes):
     mae, mse, loss = scores
