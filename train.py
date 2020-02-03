@@ -54,8 +54,8 @@ elif net in ['SANet','OAI_NET_V4']:
     from trainer_for_M2TCC import Trainer # double losses but signle output
 elif net in ['CMTL']: 
     from trainer_for_CMTL import Trainer # double losses and double outputs
-elif net in ['PCCNet']:
-    from trainer_for_M3T3OCC import Trainer
+# elif net in ['PCCNet']:
+#     from trainer_for_M3T3OCC import Trainer
 
 #------------Start Training------------
 pwd = os.path.split(os.path.realpath(__file__))[0]

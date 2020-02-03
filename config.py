@@ -25,7 +25,7 @@ __C.NET = 'OAI_NET_V4'  # net selection: MCNN, AlexNet, VGG, VGG_DECODER, Res50,
 __C.METHOD = 't1_OAI_NET_V4_no_att_with_default_setting'
 __C.PRE_GCC = False  # use the pretrained model on GCC dataset
 __C.PRE_GCC_MODEL = 'path to model'  # path to model
-
+__C.PRE = 'model_best.pth.tar'
 
 __C.RESUME = False  # contine training
 __C.RESUME_PATH = None#

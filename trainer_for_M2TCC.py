@@ -34,7 +34,7 @@ class Trainer():
             from misc import pytorch_ssim
             loss_2_fn = pytorch_ssim.SSIM(window_size=11)
 
-        self.net = CrowdCounter(cfg.GPU_ID, self.net_name, loss_1_fn, loss_2_fn).cuda()
+        self.net = CrowdCounter(cfg.GPU_ID, self.net_name, loss_1_fn, loss_2_fn,cfg.PRE).cuda()
         self.optimizer = optim.Adam(self.net.CCN.parameters(), lr=cfg.LR, weight_decay=1e-4)
         # self.optimizer = optim.SGD(self.net.parameters(), cfg.LR, momentum=0.95,weight_decay=5e-4)
         if cfg.LR_CHANGER == 'step':
@@ -74,10 +74,6 @@ class Trainer():
 
         # self.validate_V3()
         for epoch in range(self.epoch, cfg.MAX_EPOCH):
-            self.epoch = epoch
-            if epoch > cfg.LR_DECAY_START:
-                if cfg.LR_CHANGER is not 'rop':
-                    self.scheduler.step()
 
             # training    
             self.timer['train time'].tic()
@@ -91,13 +87,15 @@ class Trainer():
             if epoch % cfg.VAL_FREQ == 0 or epoch > cfg.VAL_DENSE_START:
                 self.timer['val time'].tic()
                 if self.data_mode in ['SHHA', 'SHHB', 'QNRF', 'UCF50']:
-                    self.validate_V1()
+                    self.validate_V1(epoch)
                 elif self.data_mode is 'WE':
                     self.validate_V2()
                 elif self.data_mode is 'GCC':
                     self.validate_V3()
                 self.timer['val time'].toc(average=False)
                 print('val time: {:.2f}s'.format(self.timer['val time'].diff))
+
+
                
 
     def train(self):  # training for all datasets
@@ -127,7 +125,7 @@ class Trainer():
                 print('        [cnt: gt: %.1f pred: %.2f]' % (
                     gt_map[0].sum().data / self.cfg_data.LOG_PARA, pred_map[0].sum().data / self.cfg_data.LOG_PARA))
 
-    def validate_V1(self):  # validate_V1 for SHHA, SHHB, UCF-QNRF, UCF50
+    def validate_V1(self,epoch):  # validate_V1 for SHHA, SHHB, UCF-QNRF, UCF50
 
         self.net.eval()
 
@@ -170,6 +168,11 @@ class Trainer():
                                          self.exp_name, \
                                          [mae, mse, loss], self.train_record, self.log_txt)
         print_summary(self.exp_name, [mae, mse, loss], self.train_record)
+        if epoch > cfg.LR_DECAY_START:
+            if cfg.LR_CHANGER !='rop':
+                self.scheduler.step()
+            if cfg.LR_CHANGER =='rop':
+                self.scheduler.step(mae)
 
     def validate_V2(self):  # validate_V2 for WE
 

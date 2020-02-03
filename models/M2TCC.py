@@ -3,10 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pdb
 from config import cfg
-
+from termcolor import cprint
 
 class CrowdCounter(nn.Module):
-    def __init__(self, gpus, model_name, loss_1_fn, loss_2_fn):
+    def __init__(self, gpus, model_name, loss_1_fn, loss_2_fn,pretrained= None):
         super(CrowdCounter, self).__init__()
 
         if model_name == 'SANet':
@@ -16,6 +16,26 @@ class CrowdCounter(nn.Module):
 
 
         self.CCN = net()
+
+        if pretrained:
+
+            if 'SHA' in pretrained:
+                check = torch.load(pretrained)
+                temp_mae = check['best_mae']
+                pretrained_dict = check['net_state_dict']
+                model_dict = net.state_dict()  # 自己的模型参数变量
+                pretrained_dict = {k: v for k, v in pretrained_dict.items() if k[9:] in model_dict}  # 去除一些不需要的参数
+                model_dict.update(pretrained_dict)  # 参数更新
+                self.CCN.load_state_dict(model_dict)  # 加载
+                cprint('update parameter from SHA pretrain model mae %.3f' % temp_mae, color='yellow')
+            else:
+                pretrained_dict = torch.load(pretrained)['state_dict']
+                model_dict = net.state_dict()  # 自己的模型参数变量
+                pretrained_dict = {k[7:]: v for k, v in pretrained_dict.items() if
+                                   k[7:] in model_dict}  # only update backbone
+                model_dict.update(pretrained_dict)  # 参数更新
+                self.CCN.load_state_dict(model_dict)  # 加载
+                cprint('update parameter from imagenet pretrain model', color='yellow')
         
         if len(gpus) > 1:
             self.CCN = torch.nn.DataParallel(self.CCN, device_ids=gpus).cuda()
