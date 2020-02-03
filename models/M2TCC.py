@@ -16,10 +16,13 @@ class CrowdCounter(nn.Module):
 
 
         self.CCN = net()
+        
         if len(gpus) > 1:
             self.CCN = torch.nn.DataParallel(self.CCN, device_ids=gpus).cuda()
         else:
             self.CCN = self.CCN.cuda()
+           
+            
         self.loss_1_fn = loss_1_fn.cuda()
         self.loss_2_fn = loss_2_fn.cuda()
 

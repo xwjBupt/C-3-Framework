@@ -98,6 +98,7 @@ class Trainer():
                     self.validate_V3()
                 self.timer['val time'].toc(average=False)
                 print('val time: {:.2f}s'.format(self.timer['val time'].diff))
+               
 
     def train(self):  # training for all datasets
         self.net.train()
