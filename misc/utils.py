@@ -63,6 +63,7 @@ def logger(exp_path, exp_name, work_dir, exception, resume=False):
     
     if not os.path.exists(exp_path):
         os.mkdir(exp_path)
+
     writer = SummaryWriter(exp_path+ '/' + exp_name)
     log_file = exp_path + '/' + exp_name + '/' + exp_name + '.txt'
     
