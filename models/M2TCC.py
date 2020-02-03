@@ -3,8 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pdb
 from config import cfg
-from models.M2TCC_Model.SANet import *
-from models.M2TCC_Model.OAINet import *
 
 
 class CrowdCounter(nn.Module):
@@ -12,13 +10,12 @@ class CrowdCounter(nn.Module):
         super(CrowdCounter, self).__init__()
 
         if model_name == 'SANet':
-            self.CCN = SANet()
-            # from M2TCC_Model.SANet import SANet as net
+            from models.M2TCC_Model.SANet import SANet as net
         if model_name == 'OAI_NET_V4':
-            # from M2TCC_Model.OAINet import OAI_NET_V4 as net
-            self.CCN = OAI_NET_V4()
+            from models.M2TCC_Model.OAINet import OAI_NET_V4 as net
 
-        # self.CCN = net()
+
+        self.CCN = net()
         if len(gpus) > 1:
             self.CCN = torch.nn.DataParallel(self.CCN, device_ids=gpus).cuda()
         else:
