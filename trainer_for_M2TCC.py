@@ -9,6 +9,7 @@ from models.M2TCC import CrowdCounter
 from config import cfg
 from misc.utils import *
 import pdb
+from termcolor import cprint
 
 
 class Trainer():
@@ -77,14 +78,14 @@ class Trainer():
 
             # training
             self.timer['train time'].tic()
-            print ('='*20+'EPOCH %d'%(epoch))
-            print ('='*30)
+            print ('='*20+'EPOCH %d'%(epoch+1)+'='*30)
+           
             print ('### start train ###')
             self.train(epoch)
             self.timer['train time'].toc(average=False)
 
             print('train time: {:.2f}s'.format(self.timer['train time'].diff))
-            print('*' * 20)
+            print('*' * 20+'\n')
             
             print ('### start val ###')
 
@@ -166,9 +167,9 @@ class Trainer():
         mse = np.sqrt(mses.avg)
         loss = losses.avg
 
-        self.writer.add_scalar('val_loss', loss, self.epoch + 1)
-        self.writer.add_scalar('mae', mae, self.epoch + 1)
-        self.writer.add_scalar('mse', mse, self.epoch + 1)
+        self.writer.add_scalar('val_loss', loss, epoch + 1)
+        self.writer.add_scalar('mae', mae, epoch + 1)
+        self.writer.add_scalar('mse', mse, epoch + 1)
       
         self.train_record = update_model(self.net, self.optimizer, self.scheduler, epoch, self.i_tb, self.exp_path,
                                          self.exp_name, \
