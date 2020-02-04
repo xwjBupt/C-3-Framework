@@ -27,8 +27,8 @@ __C.PRE_GCC = False  # use the pretrained model on GCC dataset
 __C.PRE_GCC_MODEL = 'path to model'  # path to model
 __C.PRE = '/home/xwj/C-3-Framework/model_best.pth.tar'
 
-__C.RESUME = False  # contine training
-__C.RESUME_PATH = None#
+__C.RESUME = True  # contine training
+__C.RESUME_PATH = './EXP/SHHA/t1_OAI_NET_V4_no_att_with_image_patch_02-04_09-58/latest_state.pth'
 
 __C.GPU_ID = [0,1,2,3]  # sigle gpu: [0], [1] ...; multi gpus: [0,1]
 
