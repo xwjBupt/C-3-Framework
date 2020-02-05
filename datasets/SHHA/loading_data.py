@@ -63,9 +63,10 @@ def share_memory(batch):
 def SHHA_crop_collate(batch):
     # @GJY 
     r"""Puts each data field into a tensor with outer dimension batch size"""
-
+    
     transposed = list(zip(*batch)) # imgs and dens
-    imgs, dens = [transposed[0],transposed[1]]
+    
+    imgs, dens = [transposed[1],transposed[2]]
 
 
     error_msg = "batch must contain tensors; found {}"
@@ -95,7 +96,7 @@ def SHHA_raw_collate(batch):
     r"""Puts each data field into a tensor with outer dimension batch size"""
 
     transposed = list(zip(*batch)) # imgs and dens
-    imgs, dens = [transposed[0],transposed[1]]
+    imgs, dens = [transposed[1],transposed[2]]
 
     dis = cfg_data.DIVISIBLE
     error_msg = "batch must contain tensors; found {}"
@@ -163,7 +164,7 @@ def loading_data():
     train_loader =None
     
     if cfg_data.TRAIN_BATCH_SIZE==1:
-        train_loader = DataLoader(train_set, batch_size=1, num_workers=8, collate_fn=SHHA_raw_collate,shuffle=True, drop_last=True)
+        train_loader = DataLoader(train_set, batch_size=1, num_workers=0, collate_fn=SHHA_raw_collate,shuffle=True, drop_last=True)
         
     elif cfg_data.TRAIN_BATCH_SIZE>1:
         train_loader = DataLoader(train_set, batch_size=cfg_data.TRAIN_BATCH_SIZE, num_workers=8, collate_fn=SHHA_crop_collate, shuffle=True, drop_last=True)
@@ -171,6 +172,6 @@ def loading_data():
     
 
     val_set = SHHA(cfg_data.DATA_PATH+'/test_data', mode = 'test',preload = True, main_transform=None, img_transform=img_transform, gt_transform=gt_transform)
-    val_loader = DataLoader(val_set, batch_size=cfg_data.VAL_BATCH_SIZE, num_workers=8, collate_fn=SHHA_raw_collate,shuffle=True, drop_last=False)
+    val_loader = DataLoader(val_set, batch_size=cfg_data.VAL_BATCH_SIZE, num_workers=0, collate_fn=SHHA_raw_collate,shuffle=True, drop_last=False)
 
     return train_loader, val_loader, restore_transform

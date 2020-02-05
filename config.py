@@ -21,21 +21,23 @@ if __C.DATASET == 'GCC':  # only for GCC
 
     __C.VAL_MODE = cfg_data.VAL_MODE
 
-__C.NET = 'OAI_NET_V4'  # net selection: MCNN, AlexNet, VGG, VGG_DECODER, Res50, CSRNet, SANet
-__C.METHOD = 't1_OAI_NET_V4_no_att_with_image_patch'
+
+__C.NET = 'OAI_NET_V6'  # net selection: MCNN, AlexNet, VGG, VGG_DECODER, Res50, CSRNet, SANet
+__C.METHOD = 't1_OAI_NET_V6_no_att_with_image_patch'
+__C.DESCRIBLE=''
 __C.PRE_GCC = False  # use the pretrained model on GCC dataset
 __C.PRE_GCC_MODEL = 'path to model'  # path to model
-__C.PRE = '/home/xwj/C-3-Framework/model_best.pth.tar'
+__C.PRE = '/home/xwj/C-3-Framework/can.pth'
 
-__C.RESUME = True  # contine training
+__C.RESUME = False  # contine training
 __C.RESUME_PATH = './EXP/SHHA/t1_OAI_NET_V4_no_att_with_image_patch_02-04_09-58/latest_state.pth'
 
 __C.GPU_ID = [0,1,2,3]  # sigle gpu: [0], [1] ...; multi gpus: [0,1]
 
 # learning rate settings
-__C.LR = 5e-5  # learning rate
+__C.LR = 5e-6  # learning rate
 __C.LR_DECAY = 0.995  # decay rate
-__C.LR_DECAY_START = 20  # when training epoch is more than it, the learning rate will be begin to decay
+__C.LR_DECAY_START = 100  # when training epoch is more than it, the learning rate will be begin to decay
 __C.NUM_EPOCH_LR_DECAY = 1  # decay frequency
 __C.MAX_EPOCH = 1500
 __C.LR_CHANGER = 'cosann'
@@ -43,7 +45,7 @@ __C.EPOCH_DIS = 30
 __C.ITER_DIS = 30
 # multi-task learning weights, no use for single model, such as MCNN, VGG, VGG_DECODER, Res50, CSRNet, and so on
 
-__C.LAMBDA_1 = 1e-2  # SANet:0.001 CMTL 0.0001
+__C.LAMBDA_1 = 1e-3  # SANet:0.001 CMTL 0.0001
 
 # print
 __C.PRINT_FREQ = 30

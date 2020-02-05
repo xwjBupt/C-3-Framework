@@ -107,6 +107,7 @@ class Trainer():
         self.net.train()
        
         for i, data in tqdm(enumerate(self.train_loader, 0)):
+            
             self.timer['iter time'].tic()
             img, gt_map = data
             
@@ -116,7 +117,8 @@ class Trainer():
             self.optimizer.zero_grad()
             pred_map = self.net(img, gt_map)
             loss1, loss2 = self.net.loss
-            loss = loss1 + loss2
+            b,c,h,w = img.shape
+            loss = torch.mul((loss1 + loss2),h*w/(h+w))
             loss.backward()
             self.optimizer.step()
 
@@ -160,8 +162,10 @@ class Trainer():
                     losses.update(loss)
                     maes.update(abs(gt_count - pred_cnt))
                     mses.update((gt_count - pred_cnt) * (gt_count - pred_cnt))
-                if vi % cfg.ITER_DIS == 0:
-                    vis_results(self.exp_name, self.epoch, self.writer, self.restore_transform, img, pred_map, gt_map)
+                    
+                if epoch % cfg.VAL_FREQ== 0 or (epoch <10 and epoch %3 == 0):
+                    if vi % cfg.ITER_DIS ==0:
+                        vis_results(self.exp_name, epoch+1, self.writer, self.restore_transform, img, pred_map, gt_map,vi)
 
         mae = maes.avg
         mse = np.sqrt(mses.avg)

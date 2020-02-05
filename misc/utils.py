@@ -4,15 +4,19 @@ import math
 import time
 import random
 import shutil
+
+from termcolor import cprint
+
 from config import cfg
 import torch
 from torch import nn
-
-
+import matplotlib.pyplot as plt
+from matplotlib import cm
 import torchvision.utils as vutils
 import torchvision.transforms as standard_transforms
 
 import pdb
+plt.switch_backend('agg')
 
 
 def initialize_weights(models):
@@ -128,24 +132,53 @@ def logger_txt(log_file,epoch,scores):
 
 
 
-def vis_results(exp_name, epoch, writer, restore, img, pred_map, gt_map):
+def vis_results(exp_name, epoch, writer, restore, img, pred_map, gt_map,vi):
 
-    pil_to_tensor = standard_transforms.ToTensor()
+    # pil_to_tensor = standard_transforms.ToTensor()
+    #
+    # x = []
+    #
+    # for idx, tensor in enumerate(zip(img.cpu().data, pred_map, gt_map)):
+    #     if idx>1:# show only one group
+    #         break
+    #     pil_input = restore(tensor[0])
+    #     pil_output = torch.from_numpy(tensor[1]/(tensor[2].max()+1e-10)).repeat(3,1,1)
+    #     pil_label = torch.from_numpy(tensor[2]/(tensor[2].max()+1e-10)).repeat(3,1,1)
+    #     x.extend([pil_to_tensor(pil_input.convert('RGB')), pil_label, pil_output])
+    # x = torch.stack(x, 0)
+    # x = vutils.make_grid(x, nrow=3, padding=5)
+    # x = (x.numpy()*255).astype(np.uint8)
+    #writer.add_image(exp_name + '_epoch_' + str(epoch + 1), x)
 
-    x = []
-    
-    for idx, tensor in enumerate(zip(img.cpu().data, pred_map, gt_map)):
-        if idx>1:# show only one group
-            break
-        pil_input = restore(tensor[0])
-        pil_output = torch.from_numpy(tensor[1]/(tensor[2].max()+1e-10)).repeat(3,1,1)
-        pil_label = torch.from_numpy(tensor[2]/(tensor[2].max()+1e-10)).repeat(3,1,1)
-        x.extend([pil_to_tensor(pil_input.convert('RGB')), pil_label, pil_output])
-    x = torch.stack(x, 0)
-    x = vutils.make_grid(x, nrow=3, padding=5)
-    x = (x.numpy()*255).astype(np.uint8)
+    #img = restore(img)
+    #img = img[0][0].cpu().numpy()
 
-    writer.add_image(exp_name + '_epoch_' + str(epoch+1), x)
+    tgt_count = np.sum(gt_map)
+    tes_count = np.sum(pred_map)
+
+    dif = (pred_map[0][0]-gt_map[0])*255
+
+    plt.subplot(221)
+    plt.title('image')
+    plt.imshow(img[0][0].cpu().detach().numpy())
+
+    plt.subplot(222)
+    plt.title('gtcount:%.2f' % tgt_count)
+    plt.imshow(gt_map[0], cmap=cm.jet)
+
+    plt.subplot(223)
+    plt.title('escount:%.2f' % tes_count)
+    plt.imshow(pred_map[0][0], cmap=cm.jet)
+
+    plt.subplot(224)
+    plt.title('diff')
+    plt.imshow(dif, cmap=cm.jet)
+    save = '/home/xwj/C-3-Framework/EXP/'+exp_name+'/'+str(vi)+'_epoch_' + str(epoch) + '_.jpg'
+
+    plt.savefig(save)
+    cprint(save,color = 'yellow')
+
+
 
 
 
@@ -226,6 +259,7 @@ def update_model(net,optimizer,scheduler,epoch,i_tb,exp_path,exp_name,scores,tra
         train_record['best_model_name'] = snapshot_name
         if log_file is not None:
             logger_txt(log_file,epoch,scores)
+        cprint ('change best',color = 'red')
         to_saved_weight = net.state_dict()
         torch.save(to_saved_weight, os.path.join(exp_path, exp_name, snapshot_name + '.pth'))
 
@@ -323,7 +357,6 @@ class Timer(object):
             return self.average_time
         else:
             return self.diff
-
 
 
 
