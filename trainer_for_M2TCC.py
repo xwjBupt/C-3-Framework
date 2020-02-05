@@ -78,16 +78,16 @@ class Trainer():
 
             # training
             self.timer['train time'].tic()
-            print ('='*20+'EPOCH %d'%(epoch+1)+'='*30)
-           
-            print ('### start train ###')
+            print('=' * 20 + 'EPOCH %d' % (epoch + 1) + '=' * 30)
+
+            print('### start train ###')
             self.train(epoch)
             self.timer['train time'].toc(average=False)
 
             print('train time: {:.2f}s'.format(self.timer['train time'].diff))
-            print('*' * 20+'\n')
-            
-            print ('### start val ###')
+            print('*' * 20 + '\n')
+
+            print('### start val ###')
 
             # validation
             # if epoch % cfg.VAL_FREQ == 0 or epoch > cfg.VAL_DENSE_START:
@@ -100,39 +100,57 @@ class Trainer():
                 self.validate_V3()
             self.timer['val time'].toc(average=False)
             print('val time: {:.2f}s'.format(self.timer['val time'].diff))
-            print ('='*58)
-            print ('\n')
+            print('=' * 58)
+            print('\n')
 
     def train(self, epoch):  # training for all datasets
         self.net.train()
-       
+        losses = AverageMeter()
+        maes = AverageMeter()
+        mses = AverageMeter()
+        smoothL1_losses = AverageMeter()
+        ssim_losses = AverageMeter()
+
         for i, data in tqdm(enumerate(self.train_loader, 0)):
-            
+
             self.timer['iter time'].tic()
             img, gt_map = data
-            
+
             img = Variable(img).cuda()
             gt_map = Variable(gt_map).cuda()
 
             self.optimizer.zero_grad()
             pred_map = self.net(img, gt_map)
             loss1, loss2 = self.net.loss
-            b,c,h,w = img.shape
-            loss = torch.mul((loss1 + loss2),h*w/(h+w))
+            b, c, h, w = img.shape
+
+            loss = torch.mul((loss1 + loss2), h * w / (h + w))
+            pred_cnt = np.sum(pred_map.cpu().numpy()) / self.cfg_data.LOG_PARA
+            gt_count = np.sum(gt_map.cpu().numpy()) / self.cfg_data.LOG_PARA
+
+            losses.update(loss.item(), b)
+            smoothL1_losses.update(loss1.item(), b)
+            ssim_losses.update(loss2.item(), b)
+            maes.update(abs(gt_count - pred_cnt), b)
+            mses.update((gt_count - pred_cnt) * (gt_count - pred_cnt), b)
+
             loss.backward()
             self.optimizer.step()
 
             if (i + 1) % cfg.PRINT_FREQ == 0:
                 self.i_tb += 1
-                self.writer.add_scalar('train_loss', loss.item(), self.i_tb)
-                self.writer.add_scalar('smoothL1', loss1.item(), self.i_tb)
-                self.writer.add_scalar('ssim', loss2.item(), self.i_tb)
                 self.timer['iter time'].toc(average=False)
-                print('[ep %d][it %d][loss %.4f][lr %.4f][%.2fs]' % \
-                      (epoch + 1, i + 1, loss.item(), self.optimizer.param_groups[0]['lr'] * 10000,
+                print('[ep %d][it %d][loss %.4f][lr*10000 %.4f][%.2fs]' % \
+                      (epoch + 1, i + 1, losses.avg, self.optimizer.param_groups[0]['lr'] * 10000,
                        self.timer['iter time'].diff))
-                print('        [cnt: gt: %.1f pred: %.2f]' % (
-                    gt_map[0].sum().data / self.cfg_data.LOG_PARA, pred_map[0].sum().data / self.cfg_data.LOG_PARA))
+
+                print('   [ gt: %.3f pre: %.3f diff: %.3f]' % (gt_count, pred_cnt, abs(gt_count - pred_cnt)))
+
+        self.writer.add_scalar('ssim', ssim_losses.avg, epoch + 1)
+        self.writer.add_scalar('smoothL1', smoothL1_losses.avg, epoch + 1)
+        self.writer.add_scalar('train_loss', losses.avg, epoch + 1)
+        self.writer.add_scalar('train_mae', maes.avg, epoch + 1)
+        self.writer.add_scalar('train_mse', mses.avg, epoch + 1)
 
     def validate_V1(self, epoch):  # validate_V1 for SHHA, SHHB, UCF-QNRF, UCF50
 
@@ -158,14 +176,17 @@ class Trainer():
                     gt_count = np.sum(gt_map[i_img]) / self.cfg_data.LOG_PARA
 
                     loss1, loss2 = self.net.loss
-                    loss = loss1.item() + loss2.item()
+                    b, c, h, w = pred_map[i_img].shape
+                    loss = torch.mul((loss1 + loss2), h * w / (h + w))
+                    loss = loss.item()
                     losses.update(loss)
                     maes.update(abs(gt_count - pred_cnt))
                     mses.update((gt_count - pred_cnt) * (gt_count - pred_cnt))
-                    
-                if epoch % cfg.VAL_FREQ== 0 or (epoch <10 and epoch %3 == 0):
-                    if vi % cfg.ITER_DIS ==0:
-                        vis_results(self.exp_name, epoch+1, self.writer, self.restore_transform, img, pred_map, gt_map,vi)
+
+                if epoch % cfg.VAL_FREQ == 0 or (epoch < 10 and epoch % 3 == 0):
+                    if vi % cfg.ITER_DIS == 0:
+                        vis_results(self.exp_name, epoch + 1, self.writer, self.restore_transform, img, pred_map,
+                                    gt_map, vi)
 
         mae = maes.avg
         mse = np.sqrt(mses.avg)
@@ -174,13 +195,13 @@ class Trainer():
         self.writer.add_scalar('val_loss', loss, epoch + 1)
         self.writer.add_scalar('mae', mae, epoch + 1)
         self.writer.add_scalar('mse', mse, epoch + 1)
-      
+
         self.train_record = update_model(self.net, self.optimizer, self.scheduler, epoch, self.i_tb, self.exp_path,
                                          self.exp_name, \
                                          [mae, mse, loss], self.train_record, self.log_txt)
-        print_summary(self.exp_name, [mae, mse, loss], self.train_record,epoch)
+        print_summary(self.exp_name, [mae, mse, loss], self.train_record, epoch)
         if epoch > cfg.LR_DECAY_START:
-            cprint('start to change lr',color = 'yellow')
+            cprint('start to change lr', color='yellow')
             if cfg.LR_CHANGER != 'rop':
                 self.scheduler.step()
             if cfg.LR_CHANGER == 'rop':

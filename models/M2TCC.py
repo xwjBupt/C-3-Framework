@@ -43,7 +43,7 @@ class CrowdCounter(nn.Module):
                 self.CCN.load_state_dict(model_dict)  # 加载
 
             elif 'can' in pretrained:
-                
+
                 pre = torch.load(pretrained, map_location=torch.device('cpu'))
                 self.CCN.backbone.Stage1.center_branch.C1.conv.weight.data = pre['frontend.0.weight']
                 self.CCN.backbone.Stage1.center_branch.C1.conv.bias.data = pre['frontend.0.bias']
@@ -70,6 +70,32 @@ class CrowdCounter(nn.Module):
                 self.CCN.backbone.Stage4[2].conv.bias.data = pre['frontend.21.bias']
                 cprint('update parameter from can vggbackbone', color='yellow')
 
+            elif 'vgg' in pretrained:
+                pre = torch.load(pretrained, map_location=torch.device('cpu'))
+                self.CCN.backbone.Stage1.center_branch.C1.conv.weight.data = pre['feature.0.weight']
+                self.CCN.backbone.Stage1.center_branch.C1.conv.bias.data = pre['feature.0.bias']
+                self.CCN.backbone.Stage1.center_branch.C2.conv.weight.data = pre['feature.2.weight']
+                self.CCN.backbone.Stage1.center_branch.C2.conv.bias.data = pre['feature.2.bias']
+
+                self.CCN.backbone.Stage2.center_branch.C1.conv.weight.data = pre['feature.5.weight']
+                self.CCN.backbone.Stage2.center_branch.C1.conv.bias.data = pre['feature.5.bias']
+                self.CCN.backbone.Stage2.center_branch.C2.conv.weight.data = pre['feature.7.weight']
+                self.CCN.backbone.Stage2.center_branch.C2.conv.bias.data = pre['feature.7.bias']
+
+                self.CCN.backbone.Stage3.center_branch.C1.conv.weight.data = pre['feature.10.weight']
+                self.CCN.backbone.Stage3.center_branch.C1.conv.bias.data = pre['feature.10.bias']
+                self.CCN.backbone.Stage3.center_branch.C2.conv.weight.data = pre['feature.12.weight']
+                self.CCN.backbone.Stage3.center_branch.C2.conv.bias.data = pre['feature.12.bias']
+                self.CCN.backbone.Stage3.center_branch.C3.conv.weight.data = pre['feature.14.weight']
+                self.CCN.backbone.Stage3.center_branch.C3.conv.bias.data = pre['feature.14.bias']
+
+                self.CCN.backbone.Stage4[0].conv.weight.data = pre['feature.17.weight']
+                self.CCN.backbone.Stage4[0].conv.bias.data = pre['feature.17.bias']
+                self.CCN.backbone.Stage4[1].conv.weight.data = pre['feature.19.weight']
+                self.CCN.backbone.Stage4[1].conv.bias.data = pre['feature.19.bias']
+                self.CCN.backbone.Stage4[2].conv.weight.data = pre['feature.21.weight']
+                self.CCN.backbone.Stage4[2].conv.bias.data = pre['feature.21.bias']
+                cprint('update parameter from raw imagenet vgg backbone', color='yellow')
 
         if len(gpus) > 1:
             self.CCN = torch.nn.DataParallel(self.CCN, device_ids=gpus).cuda()
