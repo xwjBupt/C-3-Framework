@@ -144,12 +144,12 @@ class Trainer():
                       (epoch + 1, i + 1, losses.avg, self.optimizer.param_groups[0]['lr'] * 10000))
                 print('   [ gt: %.3f pre: %.3f diff: %.3f]' % (gt_count, pred_cnt, abs(gt_count - pred_cnt)))
 
-                print('[epoch %d] ,[mae %.2f mse %.2f], [train loss %.4f]' % (epoch + 1, maes.avg, mses.avg, losses.avg))
-                self.writer.add_scalar('ssim', ssim_losses.avg, epoch + 1)
-                self.writer.add_scalar('smoothL1', smoothL1_losses.avg, epoch + 1)
-                self.writer.add_scalar('train_loss', losses.avg, epoch + 1)
-                self.writer.add_scalar('train_mae', maes.avg, epoch + 1)
-                self.writer.add_scalar('train_mse', mses.avg, epoch + 1)
+        print('[epoch %d] ,[mae %.2f mse %.2f], [train loss %.4f]' % (epoch + 1, maes.avg, mses.avg, losses.avg))
+        self.writer.add_scalar('ssim', ssim_losses.avg, epoch + 1)
+        self.writer.add_scalar('smoothL1', smoothL1_losses.avg, epoch + 1)
+        self.writer.add_scalar('train_loss', losses.avg, epoch + 1)
+        self.writer.add_scalar('train_mae', maes.avg, epoch + 1)
+        self.writer.add_scalar('train_mse', mses.avg, epoch + 1)
 
     def validate_V1(self, epoch):  # validate_V1 for SHHA, SHHB, UCF-QNRF, UCF50
 
