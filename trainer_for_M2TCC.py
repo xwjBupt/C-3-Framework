@@ -125,8 +125,8 @@ class Trainer():
             b, c, h, w = img.shape
 
             loss = torch.mul((loss1 + loss2), h * w / (h + w))
-            pred_cnt = np.sum(pred_map.cpu().numpy()) / self.cfg_data.LOG_PARA
-            gt_count = np.sum(gt_map.cpu().numpy()) / self.cfg_data.LOG_PARA
+            pred_cnt = np.sum(pred_map.data.cpu().numpy()) / self.cfg_data.LOG_PARA
+            gt_count = np.sum(gt_map.data.cpu().numpy()) / self.cfg_data.LOG_PARA
 
             losses.update(loss.item(), b)
             smoothL1_losses.update(loss1.item(), b)
@@ -140,17 +140,16 @@ class Trainer():
             if (i + 1) % cfg.PRINT_FREQ == 0:
                 self.i_tb += 1
                 self.timer['iter time'].toc(average=False)
-                print('[ep %d][it %d][loss %.4f][lr*10000 %.4f][%.2fs]' % \
-                      (epoch + 1, i + 1, losses.avg, self.optimizer.param_groups[0]['lr'] * 10000,
-                       self.timer['iter time'].diff))
-
+                print('[ep %d][it %d][loss %.4f][lr*10000 %.4f]' % \
+                      (epoch + 1, i + 1, losses.avg, self.optimizer.param_groups[0]['lr'] * 10000))
                 print('   [ gt: %.3f pre: %.3f diff: %.3f]' % (gt_count, pred_cnt, abs(gt_count - pred_cnt)))
 
-        self.writer.add_scalar('ssim', ssim_losses.avg, epoch + 1)
-        self.writer.add_scalar('smoothL1', smoothL1_losses.avg, epoch + 1)
-        self.writer.add_scalar('train_loss', losses.avg, epoch + 1)
-        self.writer.add_scalar('train_mae', maes.avg, epoch + 1)
-        self.writer.add_scalar('train_mse', mses.avg, epoch + 1)
+                print('[epoch %d] ,[mae %.2f mse %.2f], [train loss %.4f]' % (epoch + 1, maes.avg, mses.avg, losses.avg))
+                self.writer.add_scalar('ssim', ssim_losses.avg, epoch + 1)
+                self.writer.add_scalar('smoothL1', smoothL1_losses.avg, epoch + 1)
+                self.writer.add_scalar('train_loss', losses.avg, epoch + 1)
+                self.writer.add_scalar('train_mae', maes.avg, epoch + 1)
+                self.writer.add_scalar('train_mse', mses.avg, epoch + 1)
 
     def validate_V1(self, epoch):  # validate_V1 for SHHA, SHHB, UCF-QNRF, UCF50
 
@@ -176,7 +175,8 @@ class Trainer():
                     gt_count = np.sum(gt_map[i_img]) / self.cfg_data.LOG_PARA
 
                     loss1, loss2 = self.net.loss
-                    b, c, h, w = pred_map[i_img].shape
+                    w = pred_map[i_img].shape[-1]
+                    h = pred_map[i_img].shape[-1]
                     loss = torch.mul((loss1 + loss2), h * w / (h + w))
                     loss = loss.item()
                     losses.update(loss)
@@ -196,10 +196,10 @@ class Trainer():
         self.writer.add_scalar('mae', mae, epoch + 1)
         self.writer.add_scalar('mse', mse, epoch + 1)
 
-        self.train_record = update_model(self.net, self.optimizer, self.scheduler, epoch, self.i_tb, self.exp_path,
+        self.train_record = update_model(self.net, self.optimizer, self.scheduler, epoch+1, self.i_tb, self.exp_path,
                                          self.exp_name, \
                                          [mae, mse, loss], self.train_record, self.log_txt)
-        print_summary(self.exp_name, [mae, mse, loss], self.train_record, epoch)
+        print_summary(self.exp_name, [mae, mse, loss], self.train_record, epoch+1)
         if epoch > cfg.LR_DECAY_START:
             cprint('start to change lr', color='yellow')
             if cfg.LR_CHANGER != 'rop':

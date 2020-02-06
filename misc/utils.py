@@ -308,10 +308,10 @@ class AverageMeter(object):
         self.sum = 0
         self.count = 0
 
-    def update(self, cur_val):
+    def update(self, cur_val,batch = 1):
         self.cur_val = cur_val
         self.sum += cur_val
-        self.count += 1
+        self.count += batch
         self.avg = self.sum / self.count
 
 class AverageCategoryMeter(object):

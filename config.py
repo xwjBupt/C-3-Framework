@@ -8,7 +8,7 @@ __C = edict()
 cfg = __C
 
 # ------------------------------TRAIN------------------------
-__C.SEED = 30675  # random seed,  for reproduction
+__C.SEED = 978975  # random seed,  for reproduction
 __C.DATASET = 'SHHA'  # dataset selection: GCC, SHHA, SHHB, UCF50, QNRF, WE, Mall, UCSD
 
 if __C.DATASET == 'UCF50':  # only for UCF50
@@ -22,12 +22,12 @@ if __C.DATASET == 'GCC':  # only for GCC
     __C.VAL_MODE = cfg_data.VAL_MODE
 
 
-__C.NET = 'OAI_NET_V6'  # net selection: MCNN, AlexNet, VGG, VGG_DECODER, Res50, CSRNet, SANet
-__C.METHOD = 't1_OAI_NET_V6_no_att_with_image_patch'
+__C.NET = 'OAI_NET_V2'  # net selection: MCNN, AlexNet, VGG, VGG_DECODER, Res50, CSRNet, SANet
+__C.METHOD = 't1_OAI_NET_V2_no_att_with_image_patch_rawvgg_pretrain'
 __C.DESCRIBLE=''
 __C.PRE_GCC = False  # use the pretrained model on GCC dataset
 __C.PRE_GCC_MODEL = 'path to model'  # path to model
-__C.PRE = '/home/xwj/C-3-Framework/can.pth'
+__C.PRE = '/home/xwj/C-3-Framework/vgg16.pth'
 
 __C.RESUME = False  # contine training
 __C.RESUME_PATH = './EXP/SHHA/t1_OAI_NET_V4_no_att_with_image_patch_02-04_09-58/latest_state.pth'
@@ -35,9 +35,9 @@ __C.RESUME_PATH = './EXP/SHHA/t1_OAI_NET_V4_no_att_with_image_patch_02-04_09-58/
 __C.GPU_ID = [0,1,2,3]  # sigle gpu: [0], [1] ...; multi gpus: [0,1]
 
 # learning rate settings
-__C.LR = 5e-6  # learning rate
+__C.LR = 5e-5  # learning rate
 __C.LR_DECAY = 0.995  # decay rate
-__C.LR_DECAY_START = 100  # when training epoch is more than it, the learning rate will be begin to decay
+__C.LR_DECAY_START = 50  # when training epoch is more than it, the learning rate will be begin to decay
 __C.NUM_EPOCH_LR_DECAY = 1  # decay frequency
 __C.MAX_EPOCH = 1500
 __C.LR_CHANGER = 'cosann'
