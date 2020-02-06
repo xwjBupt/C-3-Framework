@@ -34,7 +34,7 @@ class CrowdCounter(nn.Module):
                 model_dict.update(pretrained_dict)  # 参数更新
                 self.CCN.load_state_dict(model_dict)  # 加载
 
-            elif 'imagnet' in pretrained:
+            elif 'imagenet' in pretrained:
 
                 cprint('update parameter from imagenet pretrain model', color='yellow')
                 pretrained_dict = torch.load(pretrained, map_location=torch.device('cpu'))['state_dict']
