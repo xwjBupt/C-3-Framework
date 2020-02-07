@@ -173,7 +173,7 @@ def vis_results(exp_name, epoch, writer, restore, img, pred_map, gt_map,vi):
     plt.subplot(224)
     plt.title('diff')
     plt.imshow(dif, cmap=cm.jet)
-    save = '/home/xwj/C-3-Framework/EXP/'+exp_name+'/'+str(vi)+'_epoch_' + str(epoch) + '_.jpg'
+    save = cfg.EXP_PATH+exp_name+'/'+str(vi)+'_epoch_' + str(epoch) + '_.jpg'
 
     plt.savefig(save)
     cprint(save,color = 'yellow')

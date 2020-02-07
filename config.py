@@ -6,7 +6,7 @@ import torch
 # init
 __C = edict()
 cfg = __C
-
+__C.PWD = os.getcwd()
 # ------------------------------TRAIN------------------------
 __C.SEED = 978975  # random seed,  for reproduction
 __C.DATASET = 'SHHA'  # dataset selection: GCC, SHHA, SHHB, UCF50, QNRF, WE, Mall, UCSD
@@ -27,7 +27,7 @@ __C.METHOD = 't1_OAI_NET_V2_no_att_with_image_patch_rawvgg_pretrain'
 __C.DESCRIBLE=''
 __C.PRE_GCC = False  # use the pretrained model on GCC dataset
 __C.PRE_GCC_MODEL = 'path to model'  # path to model
-__C.PRE = '/home/xwj/C-3-Framework/vgg16.pth'
+__C.PRE = __C.PWD+'/vgg16.pth'
 
 __C.RESUME = False  # contine training
 __C.RESUME_PATH = './EXP/SHHA/t1_OAI_NET_V4_no_att_with_image_patch_02-04_09-58/latest_state.pth'
@@ -61,7 +61,7 @@ if __C.DATASET == 'UCF50':
 if __C.DATASET == 'GCC':
     __C.EXP_NAME += '_' + __C.VAL_MODE
 
-__C.EXP_PATH = '/home/xwj/C-3-Framework/EXP/'  # the path of logs, checkpoints, and current codes
+__C.EXP_PATH = os.getcwd()+'/EXP/'  # the path of logs, checkpoints, and current codes
 
 # ------------------------------VAL------------------------
 __C.VAL_DENSE_START = 50

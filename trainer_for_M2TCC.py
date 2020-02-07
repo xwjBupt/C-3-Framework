@@ -57,7 +57,7 @@ class Trainer():
             self.net.load_state_dict(torch.load(cfg.PRE_GCC_MODEL))
 
         self.train_loader, self.val_loader, self.restore_transform = dataloader()
-        cfg.PRINT_FREQ = min(len(self.train_loader), 10)
+        cfg.PRINT_FREQ = min(len(self.train_loader), 30)
         if cfg.RESUME:
             latest_state = torch.load(cfg.RESUME_PATH)
             self.net.load_state_dict(latest_state['net'])
