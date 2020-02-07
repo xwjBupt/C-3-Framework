@@ -115,7 +115,7 @@ class Trainer():
 
             self.timer['iter time'].tic()
             img, gt_map = data
-
+            
             img = Variable(img).cuda()
             gt_map = Variable(gt_map).cuda()
 
@@ -176,7 +176,7 @@ class Trainer():
 
                     loss1, loss2 = self.net.loss
                     w = pred_map[i_img].shape[-1]
-                    h = pred_map[i_img].shape[-1]
+                    h = pred_map[i_img].shape[-2]
                     loss = torch.mul((loss1 + loss2), h * w / (h + w))
                     loss = loss.item()
                     losses.update(loss)

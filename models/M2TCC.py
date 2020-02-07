@@ -35,7 +35,7 @@ class CrowdCounter(nn.Module):
                 self.CCN.load_state_dict(model_dict)  # 加载
 
             elif 'imagenet' in pretrained:
-
+                
                 cprint('update parameter from imagenet pretrain model', color='yellow')
                 pretrained_dict = torch.load(pretrained, map_location=torch.device('cpu'))['state_dict']
                 model_dict = self.CCN.state_dict()  # 自己的模型参数变量
@@ -43,6 +43,7 @@ class CrowdCounter(nn.Module):
                                    k[7:] in model_dict}  # only update backbone
                 model_dict.update(pretrained_dict)  # 参数更新
                 self.CCN.load_state_dict(model_dict)  # 加载
+                self.CCN = self.CCN.cpu()
 
             elif 'can' in pretrained:
 
@@ -100,8 +101,10 @@ class CrowdCounter(nn.Module):
                 self.CCN.backbone.Stage4[2].conv.weight.data = pre['features.21.weight']
                 self.CCN.backbone.Stage4[2].conv.bias.data = pre['features.21.bias']
                 cprint('update parameter from raw imagenet vgg backbone', color='yellow')
-
+                
+        
         if len(gpus) > 1:
+            
             self.CCN = torch.nn.DataParallel(self.CCN, device_ids=gpus).cuda()
         else:
             self.CCN = self.CCN.cuda()
