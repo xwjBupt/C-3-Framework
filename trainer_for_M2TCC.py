@@ -61,13 +61,14 @@ class Trainer():
         if cfg.RESUME:
             latest_state = torch.load(cfg.RESUME_PATH)
             self.net.load_state_dict(latest_state['net'])
-            self.optimizer.load_state_dict(latest_state['optimizer'])
-            self.scheduler.load_state_dict(latest_state['scheduler'])
-            self.epoch = latest_state['epoch'] + 1
-            self.i_tb = latest_state['i_tb']
-            self.train_record = latest_state['train_record']
-            self.exp_path = latest_state['exp_path']
-            self.exp_name = latest_state['exp_name']
+            if not cfg.FINETUNE:
+                self.optimizer.load_state_dict(latest_state['optimizer'])
+                self.scheduler.load_state_dict(latest_state['scheduler'])
+                self.epoch = latest_state['epoch'] + 1
+                self.i_tb = latest_state['i_tb']
+                self.train_record = latest_state['train_record']
+                self.exp_path = latest_state['exp_path']
+                self.exp_name = latest_state['exp_name']
 
         self.writer, self.log_txt = logger(self.exp_path, self.exp_name, self.pwd, 'exp', resume=cfg.RESUME)
 
