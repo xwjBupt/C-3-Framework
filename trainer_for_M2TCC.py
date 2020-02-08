@@ -151,6 +151,7 @@ class Trainer():
                 print('   [ gt: %.3f pre: %.3f diff: %.3f]' % (gt_count, pred_cnt, abs(gt_count - pred_cnt)))
 
         print('[epoch %d] ,[mae %.2f mse %.2f], [train loss %.4f]' % (epoch + 1, maes.avg, mses.avg, losses.avg))
+        logger_txt(self.log_txt,epoch+1,[maes.avg,mses.avg,losses.avg],phase = 'train')
         self.writer.add_scalar('ssim', ssim_losses.avg, epoch + 1)
         self.writer.add_scalar('smoothL1', smoothL1_losses.avg, epoch + 1)
         self.writer.add_scalar('train_loss', losses.avg, epoch + 1)
