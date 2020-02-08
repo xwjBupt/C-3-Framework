@@ -38,8 +38,10 @@ class Trainer():
         self.net = CrowdCounter(cfg.GPU_ID, self.net_name, loss_1_fn, loss_2_fn, cfg.PRE).cuda()
         if not cfg.FINETUNE:
             self.optimizer = optim.Adam(self.net.CCN.parameters(), lr=cfg.LR, weight_decay=1e-4)
+            print ('using ADAM')
         else:
             self.optimizer = optim.SGD(self.net.parameters(), cfg.LR, momentum=0.95,weight_decay=5e-4)
+            print ('using SGD')
 
         if cfg.LR_CHANGER == 'step':
             self.scheduler = StepLR(self.optimizer, step_size=cfg.NUM_EPOCH_LR_DECAY, gamma=cfg.LR_DECAY)

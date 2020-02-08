@@ -19,22 +19,20 @@ class CrowdCounter(nn.Module):
         if model_name == 'OAI_NET_V2':
             from models.M2TCC_Model.OAINet import OAI_NET_V2 as net
 
-        self.CCN = net()
+        self.CCN = net(self_att=[True,False,False])
 
         if pretrained:
 
-            if 'SHA' in pretrained:
+            if 'SHHA' in pretrained:
 
                 check = torch.load(pretrained, map_location=torch.device('cpu'))
-                temp_mae = check['best_mae']
-                cprint('update parameter from SHA pretrain model mae %.3f' % temp_mae, color='yellow')
                 pretrained_dict = check['net_state_dict']
                 model_dict = self.CCN.state_dict()  # 自己的模型参数变量
                 pretrained_dict = {k: v for k, v in pretrained_dict.items() if k[9:] in model_dict}  # 去除一些不需要的参数
                 model_dict.update(pretrained_dict)  # 参数更新
                 self.CCN.load_state_dict(model_dict)  # 加载
 
-            elif 'imagenet' in pretrained:
+            elif 'imagenet' in pretrained.split('/')[-1]:
                 
                 cprint('update parameter from imagenet pretrain model', color='yellow')
                 pretrained_dict = torch.load(pretrained, map_location=torch.device('cpu'))['state_dict']
@@ -45,7 +43,7 @@ class CrowdCounter(nn.Module):
                 self.CCN.load_state_dict(model_dict)  # 加载
                 self.CCN = self.CCN.cpu()
 
-            elif 'can' in pretrained:
+            elif 'can' in pretrained.split('/')[-1]:
 
                 pre = torch.load(pretrained, map_location=torch.device('cpu'))
                 
@@ -74,7 +72,7 @@ class CrowdCounter(nn.Module):
                 self.CCN.backbone.Stage4[2].conv.bias.data = pre['frontend.21.bias']
                 cprint('update parameter from can vggbackbone', color='yellow')
 
-            elif 'vgg' in pretrained:
+            elif 'vgg' in pretrained.split('/')[-1]:
                 
                 pre = torch.load(pretrained, map_location=torch.device('cpu'))
                 self.CCN.backbone.Stage1.center_branch.C1.conv.weight.data = pre['features.0.weight']
