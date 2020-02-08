@@ -36,8 +36,11 @@ class Trainer():
             loss_2_fn = pytorch_ssim.SSIM(window_size=11)
 
         self.net = CrowdCounter(cfg.GPU_ID, self.net_name, loss_1_fn, loss_2_fn, cfg.PRE).cuda()
-        self.optimizer = optim.Adam(self.net.CCN.parameters(), lr=cfg.LR, weight_decay=1e-4)
-        # self.optimizer = optim.SGD(self.net.parameters(), cfg.LR, momentum=0.95,weight_decay=5e-4)
+        if not cfg.FINETUNE:
+            self.optimizer = optim.Adam(self.net.CCN.parameters(), lr=cfg.LR, weight_decay=1e-4)
+        else:
+            self.optimizer = optim.SGD(self.net.parameters(), cfg.LR, momentum=0.95,weight_decay=5e-4)
+
         if cfg.LR_CHANGER == 'step':
             self.scheduler = StepLR(self.optimizer, step_size=cfg.NUM_EPOCH_LR_DECAY, gamma=cfg.LR_DECAY)
         elif cfg.LR_CHANGER == 'cosann':
@@ -57,17 +60,18 @@ class Trainer():
             self.net.load_state_dict(torch.load(cfg.PRE_GCC_MODEL))
 
         self.train_loader, self.val_loader, self.restore_transform = dataloader()
-        cfg.PRINT_FREQ = min(len(self.train_loader), 10)
+        cfg.PRINT_FREQ = min(len(self.train_loader), 30)
         if cfg.RESUME:
             latest_state = torch.load(cfg.RESUME_PATH)
             self.net.load_state_dict(latest_state['net'])
-            self.optimizer.load_state_dict(latest_state['optimizer'])
-            self.scheduler.load_state_dict(latest_state['scheduler'])
-            self.epoch = latest_state['epoch'] + 1
-            self.i_tb = latest_state['i_tb']
-            self.train_record = latest_state['train_record']
-            self.exp_path = latest_state['exp_path']
-            self.exp_name = latest_state['exp_name']
+            if not cfg.FINETUNE:
+                self.optimizer.load_state_dict(latest_state['optimizer'])
+                self.scheduler.load_state_dict(latest_state['scheduler'])
+                self.epoch = latest_state['epoch'] + 1
+                self.i_tb = latest_state['i_tb']
+                self.train_record = latest_state['train_record']
+                self.exp_path = latest_state['exp_path']
+                self.exp_name = latest_state['exp_name']
 
         self.writer, self.log_txt = logger(self.exp_path, self.exp_name, self.pwd, 'exp', resume=cfg.RESUME)
 
@@ -115,7 +119,7 @@ class Trainer():
 
             self.timer['iter time'].tic()
             img, gt_map = data
-
+            
             img = Variable(img).cuda()
             gt_map = Variable(gt_map).cuda()
 
@@ -176,7 +180,7 @@ class Trainer():
 
                     loss1, loss2 = self.net.loss
                     w = pred_map[i_img].shape[-1]
-                    h = pred_map[i_img].shape[-1]
+                    h = pred_map[i_img].shape[-2]
                     loss = torch.mul((loss1 + loss2), h * w / (h + w))
                     loss = loss.item()
                     losses.update(loss)
