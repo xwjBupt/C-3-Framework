@@ -38,10 +38,10 @@ class Trainer():
         self.net = CrowdCounter(cfg.GPU_ID, self.net_name, loss_1_fn, loss_2_fn, cfg.PRE).cuda()
         if not cfg.FINETUNE:
             self.optimizer = optim.Adam(self.net.CCN.parameters(), lr=cfg.LR, weight_decay=1e-4)
-            print ('using ADAM')
+            print('using ADAM')
         else:
-            self.optimizer = optim.SGD(self.net.parameters(), cfg.LR, momentum=0.95,weight_decay=5e-4)
-            print ('using SGD')
+            self.optimizer = optim.SGD(self.net.parameters(), cfg.LR, momentum=0.95, weight_decay=5e-4)
+            print('using SGD')
 
         if cfg.LR_CHANGER == 'step':
             self.scheduler = StepLR(self.optimizer, step_size=cfg.NUM_EPOCH_LR_DECAY, gamma=cfg.LR_DECAY)
@@ -62,7 +62,7 @@ class Trainer():
             self.net.load_state_dict(torch.load(cfg.PRE_GCC_MODEL))
 
         self.train_loader, self.val_loader, self.restore_transform = dataloader()
-        cfg.PRINT_FREQ = min(len(self.train_loader), 30)
+        cfg.PRINT_FREQ = min(len(self.train_loader), cfg.ITER_DIS)
         if cfg.RESUME:
             latest_state = torch.load(cfg.RESUME_PATH)
             self.net.load_state_dict(latest_state['net'])
@@ -121,7 +121,7 @@ class Trainer():
 
             self.timer['iter time'].tic()
             img, gt_map = data
-            
+
             img = Variable(img).cuda()
             gt_map = Variable(gt_map).cuda()
 
@@ -151,7 +151,7 @@ class Trainer():
                 print('   [ gt: %.3f pre: %.3f diff: %.3f]' % (gt_count, pred_cnt, abs(gt_count - pred_cnt)))
 
         print('[epoch %d] ,[mae %.2f mse %.2f], [train loss %.4f]' % (epoch + 1, maes.avg, mses.avg, losses.avg))
-        logger_txt(self.log_txt,epoch+1,[maes.avg,mses.avg,losses.avg],phase = 'train')
+        logger_txt(self.log_txt, epoch + 1, [maes.avg, mses.avg, losses.avg], phase='train')
         self.writer.add_scalar('ssim', ssim_losses.avg, epoch + 1)
         self.writer.add_scalar('smoothL1', smoothL1_losses.avg, epoch + 1)
         self.writer.add_scalar('train_loss', losses.avg, epoch + 1)
@@ -203,10 +203,10 @@ class Trainer():
         self.writer.add_scalar('mae', mae, epoch + 1)
         self.writer.add_scalar('mse', mse, epoch + 1)
 
-        self.train_record = update_model(self.net, self.optimizer, self.scheduler, epoch+1, self.i_tb, self.exp_path,
+        self.train_record = update_model(self.net, self.optimizer, self.scheduler, epoch + 1, self.i_tb, self.exp_path,
                                          self.exp_name, \
                                          [mae, mse, loss], self.train_record, self.log_txt)
-        print_summary(self.exp_name, [mae, mse, loss], self.train_record, epoch+1)
+        print_summary(self.exp_name, [mae, mse, loss], self.train_record, epoch + 1)
         if epoch > cfg.LR_DECAY_START:
             cprint('start to change lr', color='yellow')
             if cfg.LR_CHANGER != 'rop':

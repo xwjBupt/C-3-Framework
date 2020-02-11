@@ -24,9 +24,7 @@ def get_min_size(batch):
         
         if wd<min_wd:
             min_wd = wd
-            
-        
-            
+
     min_ht = min_ht//dis*dis
     min_wd = min_wd//dis*dis
     
