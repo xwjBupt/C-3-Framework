@@ -252,7 +252,7 @@ def update_model(net, optimizer, scheduler, epoch, i_tb, exp_path, exp_name, sco
         if not len(cfg.GPU_ID) > 1:
             to_saved_weight = net.state_dict()
         else:
-            to_saved_weight = net.module.state_dict()
+            to_saved_weight = net.CCN.module.state_dict()
         torch.save(to_saved_weight, os.path.join(exp_path, exp_name, snapshot_name + '.pth'))
 
     if mae < train_record['best_mae']:
